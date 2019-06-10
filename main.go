@@ -40,7 +40,11 @@ func main() {
 
 	http.HandleFunc("/", index)
 	http.HandleFunc("/todos", handleTodos)
+
+	// http.HandleFunc("/todos/:id", getTodo)
+	// http.HandleFunc("/todos/:id", updateTodo)
 	http.HandleFunc("/todos/create", createForm)
+	http.HandleFunc("/todos/delete", deleteTodo)
 	// http.Handle("/public/", http.StripPrefix("/public", http.FileServer(http.Dir("public"))))
 	http.ListenAndServe(":9000", nil)
 }
@@ -86,17 +90,53 @@ func createForm(w http.ResponseWriter, r *http.Request) {
 	td.Text = r.FormValue("text")
 
 	if td.Text == "" {
+		http.Error(w, http.StatusText(400), http.StatusBadRequest)
 		return
 	}
 
-	//insert values
+	//insert values in db
 	_, err := db.Exec(`INSERT INTO "todos" (text, createdat) VALUES ($1, $2)`, td.Text, time.Now())
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(td)
-	tpl.ExecuteTemplate(w, "index.html", td)
+	// fmt.Println(td)
+	http.Redirect(w, r, "/todos", http.StatusSeeOther)
+
+}
+
+// func getTodo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+// 	id := p.ByName("id")
+
+// 	// Marshal into JSON
+// 	uj, err := json.Marshal(td)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+
+// 	// Write content-type, statuscode, payload
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.WriteHeader(http.StatusOK) // 200
+// 	fmt.Fprintf(w, "%s\n", uj)
+// }
+
+// func updateTodo(w http.ResponseWriter, r *http.Request) {
+// 	// id := parse
+// }
+
+func deleteTodo(w http.ResponseWriter, r *http.Request) {
+	// id := p.ByName("id")
+	id := r.FormValue("id")
+	if id == "" {
+		http.Error(w, "not found", 404)
+		return
+	}
+
+	_, err := db.Exec("DELETE FROM todos WHERE id=$1", id)
+	if err != nil {
+		panic(err)
+	}
+	http.Redirect(w, r, "/todos", http.StatusSeeOther)
 
 }
 

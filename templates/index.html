@@ -32,23 +32,25 @@
             <th scope="col">#</th>
             <th scope="col">To-Do</th>
             <th scope="col">Date</th>
+            <th scope="col">Edit</th>
           </tr>
         </thead>
         <tbody>
+          {{range .}}
           <tr>
-            {{range .}}
-            <th scope="row">{{.ID}}</th>
+            <th>{{.ID}}</th>
             <td>{{.Text}}</td>
             <td>{{.CreatedAt}}</td>
-            {{end}}
+            <td><button class="btn btn-danger"><a href="/todos/delete?id={{.ID}}">delete</a></button></td>
           </tr>
+          {{end}}
         </tbody>
       </table>
 
       <h4>Create task</h4>
-      <form method="POST" action="/todos/create">
+      <form method="POST" action="/todos/create" class="form-group">
         <input type="text" name="text">
-        <input type="submit">
+        <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
   </main>
