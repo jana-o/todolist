@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+  <style>
+    body,
+    htlm {
+      height: 100%;
+      margin: 2rem;
+    }
+
+    h1 {
+      margin: 2rem;
+      text-align: center;
+    }
+  </style>
+  <title>To-Do</title>
+</head>
+
+<body>
+  <main>
+    <div>
+      <h1>To-do list</h1>
+
+      <table class="table">
+        <thead class="thead-light">
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">To-Do</th>
+            <th scope="col">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {{range .}}
+            <th scope="row">{{.ID}}</th>
+            <td>{{.Text}}</td>
+            <td>{{.CreatedAt}}</td>
+            {{end}}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+
+</html>
