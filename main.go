@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"time"
 
 	_ "github.com/lib/pq"
 )
 
 ///Applications/Postgres.app/Contents/versions/latest/bin/psql -p5432
+//grant all privileges on database todosdb to jana;
 var db *sql.DB
 var tpl *template.Template
 
@@ -26,14 +28,11 @@ func init() {
 	tpl = template.Must(template.ParseGlob("templates/*"))
 }
 
-//ToDO struct
 type ToDo struct {
 	ID        int64
 	Text      string
-	CreatedAt string
+	CreatedAt time.Time
 }
-
-// CreatedAt time.Time `json:"createdAt"`
 
 func main() {
 
@@ -41,7 +40,7 @@ func main() {
 
 	http.HandleFunc("/", index)
 	http.HandleFunc("/todos", handleTodos)
-	// http.HandleFunc("/todos/create", createForm)
+	http.HandleFunc("/todos/create", createForm)
 	// http.Handle("/public/", http.StripPrefix("/public", http.FileServer(http.Dir("public"))))
 	http.ListenAndServe(":9000", nil)
 }
@@ -81,19 +80,32 @@ func handleTodos(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// func createForm(w http.ResponseWriter, r *http.Request) {
-// 	err := tpl.ExecuteTemplate(w, "create.html", nil)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), 500)
-// 	}
-// }
+func createForm(w http.ResponseWriter, r *http.Request) {
+	//get form values
+	td := ToDo{}
+	td.Text = r.FormValue("text")
+
+	if td.Text == "" {
+		return
+	}
+
+	//insert values
+	_, err := db.Exec(`INSERT INTO "todos" (text, createdat) VALUES ($1, $2)`, td.Text, time.Now())
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(td)
+	tpl.ExecuteTemplate(w, "index.html", td)
+
+}
 
 func migrateDB(db *sql.DB) {
 	sql := `
         CREATE TABLE IF NOT EXISTS todos(
-			ID INT PRIMARY KEY     NOT NULL,
+			ID SERIAL PRIMARY KEY,
 			TEXT           TEXT    NOT NULL,
-			CREATEDAT		TEXT NOT NULL
+			CREATEDAT		timestamptz not null default now()
 		);`
 
 	_, err := db.Exec(sql)
@@ -101,3 +113,6 @@ func migrateDB(db *sql.DB) {
 		panic(err)
 	}
 }
+
+//timestamptz not null
+//insert into todos (id, text, createdat) values (1, 't1', '1.1');
