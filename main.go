@@ -29,7 +29,7 @@ func init() {
 }
 
 type ToDo struct {
-	ID        int64
+	ID        string
 	Text      string
 	CreatedAt time.Time
 }
@@ -42,7 +42,7 @@ func main() {
 	http.HandleFunc("/todos", handleTodos)
 
 	// http.HandleFunc("/todos/:id", getTodo)
-	// http.HandleFunc("/todos/:id", updateTodo)
+	// http.HandleFunc("/todos/update", updateTodo)
 	http.HandleFunc("/todos/create", createForm)
 	http.HandleFunc("/todos/delete", deleteTodo)
 	// http.Handle("/public/", http.StripPrefix("/public", http.FileServer(http.Dir("public"))))
@@ -105,27 +105,7 @@ func createForm(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// func getTodo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-// 	id := p.ByName("id")
-
-// 	// Marshal into JSON
-// 	uj, err := json.Marshal(td)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-
-// 	// Write content-type, statuscode, payload
-// 	w.Header().Set("Content-Type", "application/json")
-// 	w.WriteHeader(http.StatusOK) // 200
-// 	fmt.Fprintf(w, "%s\n", uj)
-// }
-
-// func updateTodo(w http.ResponseWriter, r *http.Request) {
-// 	// id := parse
-// }
-
 func deleteTodo(w http.ResponseWriter, r *http.Request) {
-	// id := p.ByName("id")
 	id := r.FormValue("id")
 	if id == "" {
 		http.Error(w, "not found", 404)
@@ -154,5 +134,4 @@ func migrateDB(db *sql.DB) {
 	}
 }
 
-//timestamptz not null
-//insert into todos (id, text, createdat) values (1, 't1', '1.1');
+//serial is postgres equivalent to autoincrement

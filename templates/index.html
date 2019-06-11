@@ -8,7 +8,7 @@
     integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
   <style>
     body,
-    htlm {
+    html {
       height: 100%;
       margin: 2rem;
     }
@@ -33,6 +33,7 @@
             <th scope="col">To-Do</th>
             <th scope="col">Date</th>
             <th scope="col">Edit</th>
+            <th scope="col"></th>
           </tr>
         </thead>
         <tbody>
@@ -41,7 +42,8 @@
             <th>{{.ID}}</th>
             <td>{{.Text}}</td>
             <td>{{.CreatedAt}}</td>
-            <td><button class="btn btn-danger"><a href="/todos/delete?id={{.ID}}">delete</a></button></td>
+            <td><button class="btn btn-light"><a href="/todos/update?id={{.ID}}">edit</a></button></td>
+            <td><button class="btn btn-light"><a href="/todos/delete?id={{.ID}}">delete</a></button></td>
           </tr>
           {{end}}
         </tbody>
