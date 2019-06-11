@@ -1,6 +1,7 @@
 package main
 
 import (
+	"code/tests/httprouter"
 	"database/sql"
 	"fmt"
 	"html/template"
@@ -42,7 +43,7 @@ func main() {
 	http.HandleFunc("/todos", handleTodos)
 
 	// http.HandleFunc("/todos/:id", getTodo)
-	// http.HandleFunc("/todos/update", updateTodo)
+	http.HandleFunc("/todos/update", updateTodo)
 	http.HandleFunc("/todos/create", createForm)
 	http.HandleFunc("/todos/delete", deleteTodo)
 	// http.Handle("/public/", http.StripPrefix("/public", http.FileServer(http.Dir("public"))))
@@ -102,6 +103,77 @@ func createForm(w http.ResponseWriter, r *http.Request) {
 
 	// fmt.Println(td)
 	http.Redirect(w, r, "/todos", http.StatusSeeOther)
+
+}
+
+func updateTodo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	switch r.Method {
+	case "GET":
+		// id := p.ByName("id")
+		id := r.FormValue("id")
+		if id == "" {
+			http.Error(w, "not found", 404)
+			return
+		}
+
+		row := db.QueryRow("SELECT * FROM todos WHERE id=$1", id)
+
+		td := ToDo{}
+		err := row.Scan(&td.ID, &td.Text, &td.CreatedAt)
+		switch {
+		case err == sql.ErrNoRows:
+			http.NotFound(w, r)
+			return
+		case err != nil:
+			fmt.Println("error db Scan")
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		tpl.ExecuteTemplate(w, "update.html", td)
+
+	case "POST":
+		fmt.Println("enter update")
+		id := p.ByName("id")
+
+		// id := r.FormValue("id")
+		// if id == "" {
+		// 	http.Error(w, "not found", 404)
+		// 	return
+		// }
+		fmt.Println("update ID db", id)
+
+		td := ToDo{}
+		td.Text = r.FormValue("text")
+
+		//convert id form value
+		// n, err := strconv.Atoi(id)
+		// if err != nil {
+		// 	fmt.Printf("%d of type %T\n", n, n)
+		// }
+		// td.ID = n
+		//this is string to int! but int64
+		// n, err := strconv.ParseInt(id, 10, 64)
+		// if err != nil {
+		// 	fmt.Printf("%d of type %T\n", n, n)
+		// }
+		// td.ID = int64(n)
+
+		// insert values
+		_, err := db.Exec("UPDATE todos SET text = $1 WHERE id=$2;", td.Text, id)
+		if err != nil {
+			fmt.Println("error updating db")
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Println("updated db")
+
+		// confirm insertion
+		tpl.ExecuteTemplate(w, "index.html", td)
+
+	default:
+		http.Error(w, "Method Not Allowed", 405)
+	}
 
 }
 
