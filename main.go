@@ -2,26 +2,39 @@ package main
 
 import (
 	"code/toDoList/config"
-	"code/toDoList/todos"
-	"net/http"
+	"code/toDoList/handlers"
+	"time"
 
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	_ "github.com/lib/pq"
 )
 
-func main() {
-
-	config.MigrateDB(config.DB)
-
-	http.HandleFunc("/", index)
-	http.HandleFunc("/todos", todos.Index)
-	http.HandleFunc("/todos/create", todos.CreateHandler)
-	http.HandleFunc("/todos/delete", todos.DeleteHandler)
-	http.HandleFunc("/todos/update", todos.UpdateHandler)
-	http.HandleFunc("/todos/update/post", todos.UpdatePostHandler)
-	// http.Handle("/public/", http.StripPrefix("/public", http.FileServer(http.Dir("public"))))
-	http.ListenAndServe(":9000", nil)
+type ToDo struct {
+	ID        string    `json:"id"`
+	Text      string    `json:"text"`
+	CreatedAt time.Time `json:"createdat"`
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/todos", http.StatusSeeOther)
+type ToDoList struct {
+	ToDos []ToDo
+}
+
+func main() {
+
+	e := echo.New()
+
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	db := config.InitDB()
+	config.MigrateDB(db)
+
+	e.File("/", "public/index.html")
+	e.Static("/uploads", "public/uploads")
+	e.GET("/todos", handlers.GetTodos(db))
+	e.POST("/todos", handlers.Create(db))
+	e.DELETE("/todos/:id", handlers.Delete(db))
+
+	e.Logger.Fatal(e.Start(":9000"))
 }

@@ -8,11 +8,10 @@ import (
 )
 
 ///Applications/Postgres.app/Contents/versions/latest/bin/psql -p5432
-//grant all privileges on database todosdb to jana;
 
 var DB *sql.DB
 
-func init() {
+func InitDB() *sql.DB {
 	var err error
 	DB, err = sql.Open("postgres", "postgres://jana:password@localhost/todosdb?sslmode=disable")
 	if err != nil {
@@ -22,7 +21,8 @@ func init() {
 	if err = DB.Ping(); err != nil {
 		panic(err)
 	}
-	fmt.Println("You connected to your database.")
+	fmt.Println("Connected to todos database.")
+	return DB
 }
 
 func MigrateDB(db *sql.DB) {
@@ -30,7 +30,7 @@ func MigrateDB(db *sql.DB) {
         CREATE TABLE IF NOT EXISTS todos(
 			ID SERIAL PRIMARY KEY,
 			TEXT           TEXT    NOT NULL,
-			CREATEDAT		timestamptz not null default now()
+			CREATEDAT		timestamp not null default now()
 		);`
 
 	_, err := db.Exec(sql)

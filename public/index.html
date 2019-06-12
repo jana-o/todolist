@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+
+  <style type="text/css">
+    #app {
+      max-width: 100%;
+    }
+
+    .container {
+      margin: 2rem;
+    }
+
+    h1 {
+      margin: 2rem;
+      text-align: center;
+    }
+  </style>
+  <title>To-Do</title>
+</head>
+
+<body>
+  <main>
+    <div id="app">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Taskly</a>
+      </nav>
+
+      <div class="container">
+        <h1>To-do list</h1>
+
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">To-Do</th>
+              <th scope="col">Date</th>
+              <th scope="col">Edit</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="todo in todos" :key="todo.id">
+              <th>{{todo.id}}</th>
+              <td>{{todo.text}}</td>
+              <td>{{todo.createdat}}</td>
+              <td><button class="btn btn-light" v-on:click="editTask(todo.id)"><i class="fal fa-edit"></i></button>
+              </td>
+              <td><button class="btn btn-danger" v-on:click="deleteTask(todo.id)"><i class="fa fa-trash-o"
+                    aria-hidden="true"></i></button></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div>
+          <h4>Create task</h4>
+          <form method="POST" action="/todos" class="form-group" @submit="createTask">
+            <input type="text" name="text">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+  <script type="text/javascript">
+    var app = new Vue({
+      el: "#app",
+      data: {
+        todos: [],
+        newTask: {}
+      },
+      mounted() {
+        axios.get("/todos").then(res => {
+          console.log(res)
+          this.todos = res.data.ToDos ? res.data.ToDos : [];
+        });
+      },
+      methods: {
+        createTask: function () {
+          axios.post("/todos", this.newTask).then(res => {
+            // this.todos.push(this.newTask)
+            console.log(res);
+          })
+        },
+
+        editTask: function (index) {
+          axios.put("/todos/" + index).then(res => {
+            console.log(res)
+          })
+        },
+
+        deleteTask: function (index) {
+          axios.delete("/todos/" + index).then(res => {
+            console.log(res)
+          })
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
