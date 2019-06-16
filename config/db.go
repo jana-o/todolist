@@ -7,9 +7,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-///Applications/Postgres.app/Contents/versions/latest/bin/psql -p5432
-//grant all privileges on database todosdb to jana;
-
 var DB *sql.DB
 
 func init() {
