@@ -7,8 +7,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-///Applications/Postgres.app/Contents/versions/latest/bin/psql -p5432
-
 var DB *sql.DB
 
 func InitDB() *sql.DB {
